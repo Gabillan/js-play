@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JavaScript Playground</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 15;
+        padding: 0;
+        font-family: Sans-Serif;
+        font-weight: 100;
+    }
+    #container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+    }
+    #editor {
+        width: 80%;
+        height: 300px;
+    }
+    #output {
+        border: 1px solid #111;
+        padding: 10px;
+        margin-top: 20px;
+        min-height: 100px;
+        width: 80%;
+        border-radius: 10px;
+        box-shadow: 0 0 4px #111;
+        overflow-wrap: break-word;
+    }
+    button {
+        border: solid #111 1px;
+        background-color: #111;
+        color: #fff;
+        padding: 3px;
+        font-size: 20px;
+        border-radius: 2px;
+        margin: 10px;
+    }
+    h1 {
+        font-weight: 100;
+    }
+</style>
+</head>
+<body>
+<h1>JavaScript Playground</h1>
+<div id="container">
+    <div id="editor">console.log("hello");</div>
+    <button onclick="runCode()">Run Code</button>
+    <button onclick="saveToLocalStorage()">Save Data</button>
+    <button onclick="deleteFromLocalStorage()">Clear Data</button>
+    <div id="output"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
+<script>
+    var editor = ace.edit("editor");
+    editor.setTheme("ace/theme/monokai");
+    editor.getSession().setMode("ace/mode/javascript");
+
+    function runCode() {
+        var code = editor.getValue();
+        var output = document.getElementById('output');
+        
+        // Clear previous output
+        output.innerHTML = '';
+
+        // Capture console.log
+        var log = [];
+        var oldLog = console.log;
+        console.log = function(value) {
+            log.push(value);
+        };
+
+        try {
+            // Evaluate the code
+            var result = eval(code);
+            
+            // Display any console.log output
+            if (log.length > 0) {
+                output.innerHTML += '<div>Console Output:</div>';
+                log.forEach(function(value) {
+                    output.innerHTML += '<div>' + value + '</div>';
+                });
+            }
+
+            // Display the result
+            if (result !== undefined) {
+                output.innerHTML += '<div>Result:</div><div>' + result + '</div>';
+            }
+        } catch (error) {
+            // Display any error
+            output.innerHTML = '<span style="color: red;">Error: ' + error.message + '</span>';
+        }
+
+        // Restore console.log
+        console.log = oldLog;
+    }
+
+    function saveToLocalStorage() {
+        var code = editor.getValue();
+        localStorage.setItem('savedCode', code);
+        alert('Code saved to local storage.');
+    }
+
+    function deleteFromLocalStorage() {
+        localStorage.removeItem('savedCode');
+        alert('Code deleted from local storage.');
+    }
+
+    // Load saved code from local storage on page load
+    window.onload = function() {
+        var savedCode = localStorage.getItem('savedCode');
+        if (savedCode) {
+            editor.setValue(savedCode);
+            editor.clearSelection();
+        }
+    };
+</script>
+
+</body>
+</html>
